@@ -4,6 +4,10 @@ import streamlit as st
 import openai
 from openai.embeddings_utils import distances_from_embeddings
 from functools import lru_cache
+import tiktoken
+
+# Load the cl100k_base tokenizer which is designed to work with the ada-002 model
+tokenizer = tiktoken.get_encoding("cl100k_base")
 
 openai.api_key = st.secrets['openai']['key']
 
@@ -56,13 +60,13 @@ def answer_question(
     max_len=1800,
     size="ada",
     debug=False,
-    max_tokens=150,
     stop_sequence=None,
     use_outside_info=False
 ):
     """
     Answer a question based on the most similar context from the dataframe texts
     """
+    
     context = create_context(
         question,
         df,
@@ -80,10 +84,17 @@ def answer_question(
     else:
       about_outside_info = ", and if the question can't be answered based on the context, say \"I don't know\""
 
+    prompt=f"Answer the question based mainly on the context below{about_outside_info}\n\nContext: {context}\n\n---\n\nQuestion: {question}\nAnswer:"
+
+    max_tokens = 3800 - len(tokenizer.encode(" " + prompt))
+
+    # print('prompt tokens: ', len(tokenizer.encode(" " + prompt)))
+    # print('completion tokens: ', max_tokens)
+
     try:
         # Create a completions using the question and context
         response = openai.Completion.create(
-            prompt=f"Answer the question based mainly on the context below{about_outside_info}\n\nContext: {context}\n\n---\n\nQuestion: {question}\nAnswer:",
+            prompt=prompt,
             temperature=0,
             max_tokens=max_tokens,
             top_p=1,
@@ -102,12 +113,10 @@ st.subheader('Powered by OpenAI')
 
 st.text_area('Write your question here about TextBlaze...', key='question')
 st.checkbox('Do you want to use information outside TextBlaze documentation?', key='outside-info')
-st.number_input('Answer size (number of tokens)', min_value=0, max_value=3000, step=10, value=150, key='n_tokens')
 
 answer = answer_question(df, 
                         question=st.session_state['question'], 
-                        use_outside_info=st.session_state['outside-info'], 
-                        max_tokens=st.session_state['n_tokens'])
+                        use_outside_info=st.session_state['outside-info'])
 
 answer = answer.replace('\n', '<br>')
 style = """
