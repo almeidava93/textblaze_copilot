@@ -7,7 +7,7 @@ from functools import lru_cache
 
 openai.api_key = st.secrets['openai']['key']
 
-st.experimental_memo
+@st.experimental_memo
 def load_embeddings():
     df=pd.read_hdf('embeddings.hdf', key="embeddings")
     df['embeddings'] = df['embeddings'].apply(np.array)
