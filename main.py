@@ -100,7 +100,7 @@ def answer_question(
 st.title('TextBlaze Q&A')
 st.subheader('Powered by OpenAI')
 
-st.text_input('Write your question here about TextBlaze...', key='question')
+st.text_area('Write your question here about TextBlaze...', key='question')
 st.checkbox('Do you want to use information outside TextBlaze documentation?', key='outside-info')
 st.number_input('Answer size (number of tokens)', min_value=0, max_value=3000, step=10, value=150, key='n_tokens')
 
