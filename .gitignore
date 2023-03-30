@@ -1,0 +1,13 @@
+# created by virtualenv automatically
+.streamlit
+embeddings.csv
+bin
+etc
+Include
+Lib
+Scripts
+share
+embeddings_no_newlines.csv
+embeddings.csv
+pyvenv.cfg
+style.css
